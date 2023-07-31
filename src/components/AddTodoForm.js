@@ -2,8 +2,12 @@ import { useState } from "react";
 
 export const AddTodoForm = (props) => {
   const [input, setInput] = useState("");
-
   const [list, setList] = useState([]);
+
+  const add = () => {
+    setList([...list, input]);
+    setInput("");
+  };
 
   return (
     <div className="card rounded shadow-sm m-5">
@@ -19,13 +23,49 @@ export const AddTodoForm = (props) => {
               key={index}
             >
               <div>
-                <button className="btn btn-sm btn-light">
-                  <i className="bi bi-square"></i>
+                <button
+                  onClick={() => {
+                    const newDone = list.map((done) => {
+                      if (done.id === item.id) {
+                        const doneTodos = { ...done };
+                        if (done.isCompleted === true) {
+                          doneTodos.isCompleted = false;
+                        } else if (done.isCompleted === false) {
+                          doneTodos.isCompleted = true;
+                        }
+                        return doneTodos;
+                      } else {
+                        return done;
+                      }
+                    });
+                    setList(newDone);
+                  }}
+                  className={`btn btn-sm ${
+                    item.isCompleted ? "btn-success" : "btn-light"
+                  }`}
+                >
+                  <i
+                    className={`bi ${
+                      item.isCompleted ? "bi-check-square" : "bi-square"
+                    }`}
+                  ></i>
                 </button>
-                <span className="ms-2">{item.text}</span>
+                {item.isCompleted ? (
+                  <span className="ms-2 text-decoration-line-through">
+                    {item.text}
+                  </span>
+                ) : (
+                  <span className="ms-2">{item.text}</span>
+                )}
               </div>
-              <button className="btn btn-sm btn-danger">
-                <i className="bi bi-trash"></i>
+              <button
+                className="btn btn-danger"
+                onClick={() => {
+                  const newInput = list.filter((num) => num.id !== item.id);
+                  setList(newInput);
+                }}
+              >
+                Delete
               </button>
             </li>
           ))}
@@ -36,8 +76,9 @@ export const AddTodoForm = (props) => {
                 event.preventDefault();
                 const newList = [...list];
                 newList.push({
-                  id: newList.length + 1,
+                  id: Math.random(),
                   text: input,
+                  isCompleted: false,
                 });
                 setList(newList);
                 setInput("");
